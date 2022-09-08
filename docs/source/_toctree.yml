@@ -28,15 +28,13 @@
   title: "Using Diffusers"
 - sections:
   - local: optimization/fp16
-    title: "Torch Float16"
+    title: "Memory and Speed"
   - local: optimization/onnx
     title: "ONNX"
   - local: optimization/open_vino
     title: "Open Vino"
   - local: optimization/mps
     title: "MPS"
-  - local: optimization/other
-    title: "Other"
   title: "Optimization/Special Hardware"
 - sections:
   - local: training/overview

@@ -67,13 +67,13 @@ class StableDiffusionPipeline(DiffusionPipeline):
         r"""
         Enable sliced attention computation.
 
-        When this option is enabled, the attention module will split the input batch in slices, to compute attention in
-        several steps. This is useful to save some memory in exchange for a small speed decrease.
+        When this option is enabled, the attention module will split the input tensor in slices, to compute attention
+        in several steps. This is useful to save some memory in exchange for a small speed decrease.
 
         Args:
             slice_size (`str` or `int`, *optional*, defaults to `"auto"`):
-                When `"auto"`, halves the input batch to the attention heads, so attention will be computed in two
-                steps. If a number is provided, use as many slices as `attention_head_dim // slice_size`. In this case,
+                When `"auto"`, halves the input to the attention heads, so attention will be computed in two steps. If
+                a number is provided, uses as many slices as `attention_head_dim // slice_size`. In this case,
                 `attention_head_dim` must be a multiple of `slice_size`.
         """
         if slice_size == "auto":
@@ -142,7 +142,8 @@ class StableDiffusionPipeline(DiffusionPipeline):
                 plain tuple.
 
         Returns:
-            `~pipelines.stable_diffusion.StableDiffusionPipelineOutput` if `return_dict` is True, otherwise a tuple.
+            [`~pipelines.stable_diffusion.StableDiffusionPipelineOutput`] or `tuple`:
+            [`~pipelines.stable_diffusion.StableDiffusionPipelineOutput`] if `return_dict` is True, otherwise a `tuple.
             When returning a tuple, the first element is a list with the generated images, and the second element is a
             list of `bool`s denoting whether the corresponding generated image likely represents "not-safe-for-work"
             (nsfw) content, according to the `safety_checker`.
@@ -198,17 +199,22 @@ class StableDiffusionPipeline(DiffusionPipeline):
             text_embeddings = torch.cat([uncond_embeddings, text_embeddings])
 
         # get the initial random noise unless the user supplied it
+
+        # Unlike in other pipelines, latents need to be generated in the target device
+        # for 1-to-1 results reproducibility with the CompVis implementation.
+        # However this currently doesn't work in `mps`.
+        latents_device = "cpu" if self.device.type == "mps" else self.device
         latents_shape = (batch_size, self.unet.in_channels, height // 8, width // 8)
         if latents is None:
             latents = torch.randn(
                 latents_shape,
                 generator=generator,
-                device=self.device,
+                device=latents_device,
             )
         else:
             if latents.shape != latents_shape:
                 raise ValueError(f"Unexpected latents shape, got {latents.shape}, expected {latents_shape}")
-            latents = latents.to(self.device)
+        latents = latents.to(self.device)
 
         # set timesteps
         accepts_offset = "offset" in set(inspect.signature(self.scheduler.set_timesteps).parameters.keys())

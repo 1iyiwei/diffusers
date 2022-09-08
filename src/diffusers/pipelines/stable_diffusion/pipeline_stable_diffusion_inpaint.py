@@ -92,13 +92,13 @@ class StableDiffusionInpaintPipeline(DiffusionPipeline):
         r"""
         Enable sliced attention computation.
 
-        When this option is enabled, the attention module will split the input batch in slices, to compute attention in
-        several steps. This is useful to save some memory in exchange for a small speed decrease.
+        When this option is enabled, the attention module will split the input tensor in slices, to compute attention
+        in several steps. This is useful to save some memory in exchange for a small speed decrease.
 
         Args:
             slice_size (`str` or `int`, *optional*, defaults to `"auto"`):
-                When `"auto"`, halves the input batch to the attention heads, so attention will be computed in two
-                steps. If a number is provided, use as many slices as `attention_head_dim // slice_size`. In this case,
+                When `"auto"`, halves the input to the attention heads, so attention will be computed in two steps. If
+                a number is provided, uses as many slices as `attention_head_dim // slice_size`. In this case,
                 `attention_head_dim` must be a multiple of `slice_size`.
         """
         if slice_size == "auto":
@@ -170,7 +170,8 @@ class StableDiffusionInpaintPipeline(DiffusionPipeline):
                 plain tuple.
 
         Returns:
-            `~pipelines.stable_diffusion.StableDiffusionPipelineOutput` if `return_dict` is True, otherwise a tuple.
+            [`~pipelines.stable_diffusion.StableDiffusionPipelineOutput`] or `tuple`:
+            [`~pipelines.stable_diffusion.StableDiffusionPipelineOutput`] if `return_dict` is True, otherwise a `tuple.
             When returning a tuple, the first element is a list with the generated images, and the second element is a
             list of `bool`s denoting whether the corresponding generated image likely represents "not-safe-for-work"
             (nsfw) content, according to the `safety_checker`.
