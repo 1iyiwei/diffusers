@@ -162,5 +162,8 @@ tags
 # .lock
 *.lock
 
+# pre-trained models
+stable-diffusion-v1-4/
+
 # DS_Store (MacOS)
 .DS_Store
